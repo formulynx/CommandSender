@@ -1,1 +1,2 @@
  .\DistributionTool.exe -b -i .\CommandSender\bin\Debug\com.biffmasterzay.commandsender.sdPlugin -o Release
+pause

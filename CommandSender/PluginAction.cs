@@ -15,11 +15,34 @@ namespace CommandSender
     [PluginActionId("com.biffmasterzay.commandsender")]
     public class PluginAction : PluginBase
     {
-        private class PluginSettings
+       
+        private class PluginSettingsManager
         {
-            public static PluginSettings CreateDefaultSettings()
+            public static PluginSettingsManager CreateDefaultSettings()
             {
-                PluginSettings instance = new PluginSettings();
+                PluginSettingsManager instance = new PluginSettingsManager();
+                instance.NumStates = 1;
+                instance.CommandActions = new List<CommandAction>() { CommandAction.CreateDefaultSettings() };
+                return instance;
+            }
+
+            [JsonProperty(PropertyName = "numStates")]
+            public uint NumStates { get; set; }
+
+            [JsonProperty(PropertyName = "commandActions")]
+            public List<CommandAction> CommandActions { get; set; }
+
+            public uint CurrentState { get; set; }
+
+            public CommandAction CurrentCommandAction { get; set; }
+        }
+
+
+        private class CommandAction
+        {
+            public static CommandAction CreateDefaultSettings()
+            {
+                CommandAction instance = new CommandAction();
                 instance.IPAddress = "127.0.0.1";
                 instance.Port = 45671;
                 return instance;
@@ -40,7 +63,7 @@ namespace CommandSender
 
         #region Private Members
 
-        private PluginSettings settings;
+        private PluginSettingsManager settings;
 
         private UdpClient udpClient;
 
@@ -49,11 +72,11 @@ namespace CommandSender
         {
             if(payload.Settings == null || payload.Settings.Count == 0)
             {
-                this.settings = PluginSettings.CreateDefaultSettings();
+                this.settings = PluginSettingsManager.CreateDefaultSettings();
             }
             else
             {
-                this.settings = payload.Settings.ToObject<PluginSettings>();
+                this.settings = payload.Settings.ToObject<PluginSettingsManager>();
             }
             udpClient = new UdpClient();
         }
@@ -69,13 +92,13 @@ namespace CommandSender
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, "Key Pressed");
 
-            if(!string.IsNullOrEmpty(settings.CommandPressed))
+            if(!string.IsNullOrEmpty(settings.CurrentCommandAction.CommandPressed))
             {
-                byte[] data = Encoding.ASCII.GetBytes(settings.CommandPressed);
+                byte[] data = Encoding.ASCII.GetBytes(settings.CurrentCommandAction.CommandPressed);
 
                 try
                 {
-                    IPEndPoint ep = new IPEndPoint(IPAddress.Parse(settings.IPAddress), settings.Port);
+                    IPEndPoint ep = new IPEndPoint(IPAddress.Parse(settings.CurrentCommandAction.IPAddress), settings.CurrentCommandAction.Port);
                     udpClient.Connect(ep);
                     udpClient.Send(data, data.Length);
                 }
@@ -89,13 +112,13 @@ namespace CommandSender
         public override void KeyReleased(KeyPayload payload)
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, "Key Released");
-            if(!string.IsNullOrEmpty(settings.CommandReleased))
+            if(!string.IsNullOrEmpty(settings.CurrentCommandAction.CommandReleased))
             {
-                byte[] data = Encoding.ASCII.GetBytes(settings.CommandReleased);
+                byte[] data = Encoding.ASCII.GetBytes(settings.CurrentCommandAction.CommandReleased);
 
                 try
                 {
-                    IPEndPoint ep = new IPEndPoint(IPAddress.Parse(settings.IPAddress), settings.Port);
+                    IPEndPoint ep = new IPEndPoint(IPAddress.Parse(settings.CurrentCommandAction.IPAddress), settings.CurrentCommandAction.Port);
                     udpClient.Connect(ep);
                     udpClient.Send(data, data.Length);
                 }
