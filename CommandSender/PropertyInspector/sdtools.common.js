@@ -87,6 +87,17 @@ function loadConfiguration(payload) {
                 }
                 elem.value = payload[valueField];
             }
+            else if (elem.classList.contains("sdExpandedList")) { // Dynamic dropdown
+                var items = payload[key];
+                for (var idx = 0; idx < items.length; idx++) {
+                    //var opt = document.createElement('option');
+                    //opt.value = items[idx][valueProperty];
+                    //opt.text = items[idx][textProperty];
+                    //elem.appendChild(opt);
+                    console.log("items[idx]: " + idx + "=" + items[idx]);
+                    
+                }
+            }
             else { // Normal value
                 elem.value = payload[key];
             }
