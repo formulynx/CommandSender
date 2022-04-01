@@ -149,6 +149,20 @@ function setSettingsToPlugin(payload) {
     }
 }
 
+function logMessage(payload) {
+    if(websocket && (websocket.readyState === 1)) {
+        var json = {
+            "event": "logMessage",
+            "payload": {
+                "message": payload
+            }
+        };
+        websocket.send(JSON.stringify(json));
+        var event = new Event('logMessage');
+        document.dispatchEvent(event);
+    }
+}
+
 // Sends an entire payload to the sendToPlugin method
 function sendPayloadToPlugin(payload) {
     if (websocket && (websocket.readyState === 1)) {

@@ -9,6 +9,8 @@
     //when the loadConfigurationEvent is executed from loadConfiguration.
     //updateStateVisibilityOnChange()
 
+    logMessage("Desired State set to: " + ele.value)
+
     setSettings()
 }
 
